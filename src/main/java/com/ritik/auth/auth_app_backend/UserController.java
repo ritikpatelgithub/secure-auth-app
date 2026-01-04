@@ -2,6 +2,7 @@ package com.ritik.auth.auth_app_backend;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,10 @@ public class UserController {
 	public ResponseEntity<Iterable<UserDto>> getAllUsers(){
 		
 		return ResponseEntity.ok(userService.getAllUser());
-		
+	}
+	
+	@GetMapping("/email/{email}")
+	public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email){
+		return ResponseEntity.ok(userService.getByEmail(email));
 	}
 }
