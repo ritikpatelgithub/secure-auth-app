@@ -10,6 +10,7 @@ import com.ritik.auth.auth_app_backend.dtos.UserDto;
 import com.ritik.auth.auth_app_backend.entities.Provider;
 import com.ritik.auth.auth_app_backend.entities.User;
 import com.ritik.auth.auth_app_backend.exceptions.ResourceNotFoundException;
+import com.ritik.auth.auth_app_backend.helper.UserHelper;
 import com.ritik.auth.auth_app_backend.repositories.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -50,21 +51,33 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public UserDto updateUse(UserDto user, UUID id) {
+	public UserDto updateUser(UserDto user,String userid) {
 		// TODO Auto-generated method stub
+		UUID uid=UserHelper.parseUUID(userid);
+		User existingUser=userRepository.findById(uid).orElseThrow(() -> new ResourceNotFoundException("user not found with given id"));
+		if(user.getName()!=null) existingUser.setName(user.getName());
+		if(user.getProvider()!=null) existingUser.setProvider(user.getProvider());
+		if(user.getImage()!=null) existingUser.setImage(user.getImage());
+		if(user.getPassword()!=null) existingUser.setPassword(user.getPassword());
+		existingUser.setEnable(user.isEnable());
+		userRepository.save(existingUser);
 		return null;
 	}
 
 	@Override
 	public void deleteUser(String userid) {
 		// TODO Auto-generated method stub
+		UUID uid=UserHelper.parseUUID(userid);
+		User user=userRepository.findById(uid).orElseThrow(() -> new ResourceNotFoundException("user not found with given id"));
+		userRepository.delete(user);
 		
 	}
 
 	@Override
 	public UserDto getUserById(String userid) {
-		// TODO Auto-generated method stub
-		return null;
+		UUID uid=UserHelper.parseUUID(userid);
+		User user=userRepository.findById(uid).orElseThrow(() -> new ResourceNotFoundException("user not found with given id"));
+		return modelMapper.map(user, UserDto.class);
 	}
 
 	@Override
