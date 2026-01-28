@@ -1,9 +1,14 @@
 package com.ritik.auth.auth_app_backend.entities;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +39,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name="users")
-public class User {
+public class User implements UserDetails{
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name="user_id")
@@ -53,7 +58,7 @@ public class User {
 	private Provider provider=Provider.LOCAL;
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name="user_roles",joinColumns = @JoinColumn(name="user_id"),inverseJoinColumns = @JoinColumn(name="role_id"))
-	private Set<Role> role=new HashSet();
+	private Set<Role> roles=new HashSet();
 	
 	@PrePersist
 	protected void onCreate() {
@@ -66,6 +71,39 @@ public class User {
 	protected void onUpdate() {
 		Instant now= Instant.now();
 		updatedAt=now;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+	    return roles.stream()
+	            .map(role -> new SimpleGrantedAuthority(role.getName()))
+	            .toList();
+	}
+
+
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return this.email;
+	}
+	
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		//return UserDetails.super.isAccountNonExpired();
+		return true;
+	}@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return this.enable;
 	}
 }
 
